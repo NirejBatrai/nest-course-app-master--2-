@@ -1,22 +1,19 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProductModule } from './product/product.module';
-import { UtilityModule } from './shared/utility/utility.module';
-import { GlobalHelperModule } from './shared/global-helper/global-helper.module';
-import { UserModule } from './user/user.module';
-import { OrderModule } from './order/order.module';
-import { ChatModule } from './chat/chat.module';
-import { CustomerModule } from './customer/customer.module';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Dialect } from 'sequelize';
-import { UserInfoModule } from './user-info/user-info.module';
-import { UserInfo } from './user-info/entities/user-info.entity';
-import { Customer } from './customer/entities/customer.entity';
 import { AuthModule } from './auth/auth.module';
 import { AuthUser } from './auth/entities/auth.entity';
-import { Product } from './product/entity/product.entity';
+import { Product } from './products/entities/product.entity';
+import { OrdersModule } from './orders/orders.module';
+import { UsersModule } from './users/users.module';
+import { ProductsModule } from './products/products.module';
+import { Order } from './orders/entities/order.entity';
+import { OrderItem } from './orders/entities/order-item.entity';
+import { Payment } from './orders/entities/payment.entity';
+import { ShippingAddress } from './orders/entities/shipping-address.entity';
 
 @Module({
   imports: [
@@ -28,7 +25,7 @@ import { Product } from './product/entity/product.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      models: [UserInfo, Customer, AuthUser, Product],
+      models: [AuthUser, Product, Order, OrderItem, Payment, ShippingAddress],
       synchronize: true,
       autoLoadModels: true,
       sync: { alter: false },
@@ -42,15 +39,11 @@ import { Product } from './product/entity/product.entity';
         idle: 10000, // Timeout in ms before releasing idle connections
       },
     }),
-    ProductModule,
-    UtilityModule,
-    GlobalHelperModule,
-    UserModule,
-    OrderModule,
-    ChatModule,
-    CustomerModule,
-    UserInfoModule,
+
     AuthModule,
+    OrdersModule,
+    UsersModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

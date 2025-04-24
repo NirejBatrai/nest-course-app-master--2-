@@ -10,14 +10,30 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { Product } from './entities/product.entity';
 
-@Controller('products') // Changed to 'products' for better clarity and convention
+@Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
   create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto); // Calls the service to create a new product
+    return this.productsService.create(createProductDto);
+  }
+
+  @Post('bulk')
+  async createBulk(@Body() createProductDtos: CreateProductDto[]) {
+    const results: Product[] = [];
+
+    for (const dto of createProductDtos) {
+      const result = await this.productsService.create(dto);
+      results.push(result);
+    }
+
+    return {
+      message: `Successfully created ${results.length} products`,
+      products: results,
+    };
   }
 
   @Get('all')

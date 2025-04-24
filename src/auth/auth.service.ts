@@ -6,7 +6,7 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { AuthUser } from './entities/auth.entity';
 import { RegisterDto } from './dto/register.dto';
-import { compare, genSalt, hash } from 'bcrypt';
+import { compare, genSalt, hash } from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 
@@ -35,6 +35,7 @@ export class AuthService {
       username: registerDto.username,
       email: registerDto.email,
       password: hashPassword,
+      role: 'USER',
     });
     return newUser;
   }
@@ -54,7 +55,12 @@ export class AuthService {
       throw new UnauthorizedException('error password!!!');
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const payload = { user_id: authuser.id };
+    const payload = {
+      user_id: authuser.id,
+      username: authuser.username,
+      email: authuser.email,
+      role: authuser.role,
+    };
     const token = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_SECRET_KEY,
     });
@@ -66,3 +72,12 @@ export class AuthService {
     });
   }
 }
+
+// export type UserPayload = {
+//   user_id: number;
+//   username: string;
+//   email: string;
+//   role: "USER" | "ADMIN"; // Assuming role can be either USER or ADMIN
+//   iat: number; // Issued at (usually a Unix timestamp)
+//   exp: number; // Expiry (usually a Unix timestamp)
+// };

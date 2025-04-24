@@ -17,6 +17,7 @@ export class ProductsService {
     );
     return product;
   }
+
   async findAll(): Promise<Product[]> {
     return this.productModel.findAll(); // Fetches all products from the database
   }

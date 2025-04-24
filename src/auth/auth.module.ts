@@ -6,12 +6,21 @@ import { AuthUser } from './entities/auth.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      signOptions: { expiresIn: '1d' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>(
+          'JWT_SECRET',
+          'your_temporary_secret_key',
+        ),
+        signOptions: { expiresIn: '1d' },
+      }),
     }),
     SequelizeModule.forFeature([AuthUser]),
   ],

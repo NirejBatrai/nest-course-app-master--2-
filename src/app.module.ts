@@ -11,35 +11,37 @@ import { OrdersModule } from './orders/orders.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { Order } from './orders/entities/order.entity';
+import { ConfigService } from '@nestjs/config';
 import { OrderItem } from './orders/entities/order-item.entity';
 import { Payment } from './orders/entities/payment.entity';
 import { ShippingAddress } from './orders/entities/shipping-address.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    SequelizeModule.forRoot({
-      dialect: process.env.DB_DIALECT as Dialect,
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
-      models: [AuthUser, Product, Order, OrderItem, Payment, ShippingAddress],
-      synchronize: true,
-      autoLoadModels: true,
-      sync: { alter: false },
-      dialectOptions: {
-        ssl: false, // If your local DB does not require SSL, set this to false.
-      },
-      pool: {
-        max: 10, // Max connections (increase if needed)
-        min: 0, // Min connections
-        acquire: 30000, // Timeout in ms before throwing an error
-        idle: 10000, // Timeout in ms before releasing idle connections
-      },
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
-
+    SequelizeModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        dialect: configService.get<string>('DB_DIALECT', 'mysql') as Dialect,
+        host: configService.get<string>('DB_HOST', 'localhost'),
+        port: parseInt(configService.get<string>('DB_PORT', '3306')),
+        username: configService.get<string>('DB_USER', 'root'),
+        password: configService.get<string>('DB_PASSWORD', ''),
+        database: configService.get<string>('DB_DATABASE', 'test'),
+        models: [AuthUser, Product, Order, OrderItem, Payment, ShippingAddress],
+        autoLoadModels: true,
+        sync: {
+          force: false,
+          alter: false,
+        },
+        dialectOptions: {
+          ssl: configService.get<boolean>('DB_SSL', false),
+        },
+        logging: false,
+      }),
+    }),
     AuthModule,
     OrdersModule,
     UsersModule,

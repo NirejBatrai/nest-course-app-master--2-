@@ -6,14 +6,11 @@ import {
   DataType,
   ForeignKey,
   BelongsTo,
-  HasMany,
 } from 'sequelize-typescript';
 import { AuthUser } from 'src/auth/entities/auth.entity';
-import { OrderItem } from './order-item.entity';
 import { OrderStatus } from './order-status.enum';
-import { Payment } from './payment.entity';
-import { ShippingAddress } from './shipping-address.entity';
 
+// order.entity.ts
 @Table({ tableName: 'orders', timestamps: true })
 export class Order extends Model {
   @Column({
@@ -30,8 +27,12 @@ export class Order extends Model {
   @BelongsTo(() => AuthUser)
   user: AuthUser;
 
-  @HasMany(() => OrderItem)
-  orderItems: OrderItem[];
+  @Column({
+    type: DataType.JSON,
+    allowNull: false,
+    defaultValue: [],
+  })
+  orderItemsJson: Array<{ productId: number; quantity: number }>;
 
   @Column({
     type: DataType.ENUM(...Object.values(OrderStatus)),
@@ -40,13 +41,31 @@ export class Order extends Model {
   })
   status: OrderStatus;
 
-  @HasMany(() => Payment)
-  payments: Payment[];
+  // Embedded address fields
+  @Column({ allowNull: false })
+  firstName: string;
 
-  @ForeignKey(() => ShippingAddress)
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  shippingAddressId: number;
+  @Column({ allowNull: false })
+  lastName: string;
 
-  @BelongsTo(() => ShippingAddress)
-  shippingAddress: ShippingAddress;
+  @Column({ allowNull: false })
+  email: string;
+
+  @Column({ allowNull: false })
+  phone: string;
+
+  @Column({ allowNull: false })
+  address: string;
+
+  @Column({ allowNull: false })
+  city: string;
+
+  @Column({ allowNull: false })
+  state: string;
+
+  @Column({ allowNull: false })
+  zipCode: string;
+
+  @Column({ allowNull: false })
+  country: string;
 }

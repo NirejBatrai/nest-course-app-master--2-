@@ -38,4 +38,10 @@ export class AuthUser extends Model {
     allowNull: false,
   })
   password: string;
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+  })
+  role: string;
 }

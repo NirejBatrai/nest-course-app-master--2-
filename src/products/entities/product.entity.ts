@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
-@Table({ tableName: 'productss', timestamps: true }) // ✅ Renamed to "products" (plural for consistency)
+@Table({ tableName: 'products', timestamps: true }) // ✅ Renamed to "products" (plural for consistency)
 export class Product extends Model {
   @Column({
     type: DataType.INTEGER,

@@ -1,22 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
-    const secretkey = process.env.JWT_SECRET_KEY;
-    if (!secretkey) {
-      throw new Error('Secret is not found');
-    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: secretkey,
+      secretOrKey: process.env.JWT_SECRET_KEY as string, // Explicitly cast as string
     });
   }
 
-  async validate(payload: any) {
+  validate(payload: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     return { user_id: payload.user_id };
   }
 }
